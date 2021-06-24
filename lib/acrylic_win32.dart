@@ -192,7 +192,7 @@ class AcrylicWin32 {
     final accent = calloc<ACCENT_POLICY>();
     final data = calloc<WINDOWCOMPOSITIONATTRIBDATA>();
     try {
-      accent.ref.accentState = 0;
+      accent.ref.accentState = accentState;
       accent.ref.accentFlags = 2;
       accent.ref.gradientColor = (a << 24) + (b << 16) + (g << 8) + r;
       accent.ref.animationID = 0;
