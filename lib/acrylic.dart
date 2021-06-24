@@ -56,16 +56,16 @@ class Acrylic {
   static int convertAcrylicEffect(AcrylicEffect effect) {
     switch (effect) {
       case AcrylicEffect.disabled:
-        return 0;
+        return ACCENT_STATE.ACCENT_DISABLED;
       case AcrylicEffect.solid:
-        return 1;
+        return ACCENT_STATE.ACCENT_ENABLE_GRADIENT;
       case AcrylicEffect.transparent:
-        return 2;
+        return ACCENT_STATE.ACCENT_ENABLE_TRANSPARENTGRADIENT;
       case AcrylicEffect.aero:
-        return 3;
+        return ACCENT_STATE.ACCENT_ENABLE_BLURBEHIND;
       case AcrylicEffect.acrylic:
       default:
-        return 4;
+        return ACCENT_STATE.ACCENT_ENABLE_ACRYLICBLURBEHIND;
     }
   }
 

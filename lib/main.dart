@@ -50,8 +50,10 @@ class MyAppBodyState extends State<MyAppBody> {
   }
 
   void setWindowEffect(AcrylicEffect? value) {
-    Acrylic.setEffect(effect: value!, gradientColor: color);
-    setState(() => effect = value);
+    if (value != null) {
+      Acrylic.setEffect(effect: value, gradientColor: color);
+      setState(() => effect = value);
+    }
   }
 
   @override
