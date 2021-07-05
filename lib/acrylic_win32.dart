@@ -5,6 +5,7 @@
 // ignore_for_file: non_constant_identifier_names
 
 import 'dart:ffi';
+
 import 'package:ffi/ffi.dart';
 import 'package:win32/win32.dart';
 
@@ -119,29 +120,56 @@ class AcrylicWin32 {
         ..ref.cyTopHeight = 1
         ..ref.cyBottomHeight = 0;
 
-      SetWindowSubclass(GetActiveWindow(),
-          Pointer.fromFunction<SubclassProc>(subclassWindowProc, 0), 1, 0);
-      GetWindowRect(GetActiveWindow(), rect);
-      SetWindowLongPtr(
-          GetActiveWindow(), GWL_STYLE, WS_POPUP | WS_CAPTION | WS_VISIBLE);
-      DwmExtendFrameIntoClientArea(GetActiveWindow(), margins);
-      SetWindowPos(
-          GetActiveWindow(),
-          NULL,
-          rect.ref.left,
-          rect.ref.top,
-          rect.ref.right - rect.ref.left,
-          rect.ref.bottom - rect.ref.top,
-          SWP_NOZORDER |
-              SWP_NOOWNERZORDER |
-              SWP_NOMOVE |
-              SWP_NOSIZE |
-              SWP_FRAMECHANGED);
+      final handle = findFlutterWindowHandle();
+      print('Handle: ${handle.toHexString(64)}');
+
+      try {
+        // Install window handler
+        SetWindowSubclass(handle,
+            Pointer.fromFunction<SubclassProc>(subclassWindowProc, 0), 1, 0);
+
+        // Set window properties
+        GetWindowRect(handle, rect);
+        SetWindowLongPtr(handle, GWL_STYLE, WS_POPUP | WS_VISIBLE | WS_CAPTION);
+        DwmExtendFrameIntoClientArea(handle, margins);
+        SetWindowPos(
+            handle,
+            NULL,
+            rect.ref.left,
+            rect.ref.top,
+            rect.ref.right - rect.ref.left,
+            rect.ref.bottom - rect.ref.top,
+            SWP_NOZORDER |
+                SWP_NOOWNERZORDER |
+                SWP_NOMOVE |
+                SWP_NOSIZE |
+                SWP_FRAMECHANGED);
+      } finally {
+        free(rect);
+        free(margins);
+      }
+    }
+  }
+
+  static int findFlutterWindowHandle() {
+    final className = 'FLUTTER_RUNNER_WIN32_WINDOW'.toNativeUtf16();
+    final windowName = 'demo'.toNativeUtf16();
+    try {
+      final handle = FindWindow(className, windowName);
+      if (handle == 0) {
+        throw Exception("Couldn't find Flutter window.");
+      } else {
+        return handle;
+      }
+    } finally {
+      free(className);
+      free(windowName);
     }
   }
 
   static int subclassWindowProc(int hwnd, int message, int wParam, int lParam,
       int uIdSubclass, int dwRefData) {
+    print('in subclass');
     switch (message) {
       case WM_NCCALCSIZE:
         if (wParam != FALSE) {
@@ -184,6 +212,7 @@ class AcrylicWin32 {
           return hitTests[x][y];
         } finally {
           free(window);
+          free(rcFrame);
         }
     }
 
@@ -191,6 +220,8 @@ class AcrylicWin32 {
   }
 
   void setEffect(int r, int g, int b, int a, int accentState) {
+    final hwnd = findFlutterWindowHandle();
+
     final accent = calloc<ACCENT_POLICY>();
     final data = calloc<WINDOWCOMPOSITIONATTRIBDATA>();
     try {
@@ -201,7 +232,7 @@ class AcrylicWin32 {
       data.ref.attrib = WINDOWCOMPOSITIONATTRIB.WCA_ACCENT_POLICY;
       data.ref.pvData = accent;
       data.ref.cbData = sizeOf<ACCENT_POLICY>();
-      SetWindowCompositionAttribute(GetActiveWindow(), data.ref);
+      SetWindowCompositionAttribute(hwnd, data.ref);
     } finally {
       free(accent);
       free(data);
@@ -217,7 +248,7 @@ class AcrylicWin32 {
       final rect = calloc<RECT>();
 
       try {
-        final hwnd = GetActiveWindow();
+        final hwnd = findFlutterWindowHandle();
         final hMonitor = MonitorFromWindow(hwnd, MONITOR_DEFAULTTONEAREST);
 
         GetMonitorInfo(hMonitor, monitorInfo);
@@ -247,7 +278,7 @@ class AcrylicWin32 {
     if (_isFullscreen) {
       _isFullscreen = false;
 
-      final hwnd = GetActiveWindow();
+      final hwnd = findFlutterWindowHandle();
       SetWindowLongPtr(hwnd, GWL_STYLE, WS_OVERLAPPEDWINDOW | WS_VISIBLE);
       SetWindowPos(
           hwnd,
