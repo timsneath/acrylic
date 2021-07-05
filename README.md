@@ -1,8 +1,8 @@
 # Acrylic
 
 An experimental attempt at porting
-[flutter_acrylic](https://github.com/alexmercerind/flutter_acrylic) to Dart,
-using FFI instead of the traditional platform channel approach.
+[flutter_acrylic](https://github.com/alexmercerind/flutter_acrylic) to pure
+Dart, using FFI, instead of the traditional platform channel approach.
 
 This draws heavily from the work of [Hitesh Kumar
 Saini](https://www.buymeacoffee.com/alexmercerind), and the credit belongs to
