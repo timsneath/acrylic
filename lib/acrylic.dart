@@ -33,7 +33,7 @@ late final AcrylicWin32 acrylic;
 /// }
 ///
 /// ...
-/// await Acrylic.setEffect(
+/// Acrylic.setEffect(
 ///   effect: AcrylicEffect.aero,
 ///   gradientColor: Colors.white.withOpacity(0.2)
 /// );
@@ -46,7 +46,7 @@ class Acrylic {
   ///
   /// _Example_
   /// ```dart
-  /// await Acrylic.initialize();
+  /// Acrylic.initialize();
   /// ```
   ///
   static void initialize({bool drawCustomFrame = false}) {
@@ -77,7 +77,7 @@ class Acrylic {
   ///
   /// _Example_
   /// ```dart
-  /// await FlutterAcrylic.setEffect(
+  /// FlutterAcrylic.setEffect(
   ///   effect: AcrylicEffect.acrylic,
   ///   gradientColor: Colors.black.withOpacity(0.2)
   /// );

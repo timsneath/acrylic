@@ -70,27 +70,28 @@ class MyAppBodyState extends State<MyAppBody> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Card(
-                    elevation: 4.0,
+                    elevation: 4,
                     color: Colors.white,
                     child: SizedBox(
-                      height: 5 * 48.0,
-                      width: 240.0,
+                      height: 5 * 48,
+                      width: 240,
                       child: Column(
                         children: AcrylicEffect.values
                             .map(
                               (effect) => RadioListTile<AcrylicEffect>(
                                   title: Text(
-                                      effect
-                                              .toString()
-                                              .split('.')
-                                              .last[0]
-                                              .toUpperCase() +
-                                          effect
-                                              .toString()
-                                              .split('.')
-                                              .last
-                                              .substring(1),
-                                      style: const TextStyle(fontSize: 14.0)),
+                                    effect
+                                            .toString()
+                                            .split('.')
+                                            .last[0]
+                                            .toUpperCase() +
+                                        effect
+                                            .toString()
+                                            .split('.')
+                                            .last
+                                            .substring(1),
+                                    style: const TextStyle(fontSize: 14),
+                                  ),
                                   value: effect,
                                   groupValue: this.effect,
                                   onChanged: setWindowEffect),
@@ -98,35 +99,29 @@ class MyAppBodyState extends State<MyAppBody> {
                             .toList(),
                       ),
                     )),
-                const SizedBox(
-                  height: 32.0,
-                ),
+                const SizedBox(height: 32),
                 ElevatedButton(
                   onPressed: Window.enterFullscreen,
                   child: Container(
                     alignment: Alignment.center,
-                    height: 28.0,
-                    width: 140.0,
+                    height: 28,
+                    width: 140,
                     child: const Text('Enter Fullscreen'),
                   ),
                 ),
-                const SizedBox(
-                  height: 16.0,
-                ),
+                const SizedBox(height: 16),
                 ElevatedButton(
                   onPressed: Window.exitFullscreen,
                   child: Container(
                     alignment: Alignment.center,
-                    height: 28.0,
-                    width: 140.0,
+                    height: 28,
+                    width: 140,
                     child: const Text('Exit Fullscreen'),
                   ),
                 ),
-                const SizedBox(
-                  height: 32.0,
-                ),
+                const SizedBox(height: 32),
                 const Text('More features coming soon!',
-                    style: TextStyle(fontSize: 14.0, color: Colors.white)),
+                    style: TextStyle(fontSize: 14, color: Colors.white)),
               ],
             ),
           ),
@@ -135,7 +130,7 @@ class MyAppBodyState extends State<MyAppBody> {
           child: MoveWindow(
             child: SizedBox(
               width: MediaQuery.of(context).size.width,
-              height: 56.0,
+              height: 56,
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
