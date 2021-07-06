@@ -70,58 +70,36 @@ class MyAppBodyState extends State<MyAppBody> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Card(
-                    elevation: 4,
-                    color: Colors.white,
-                    child: SizedBox(
-                      height: 5 * 48,
-                      width: 240,
-                      child: Column(
-                        children: AcrylicEffect.values
-                            .map(
-                              (effect) => RadioListTile<AcrylicEffect>(
-                                  title: Text(
-                                    effect
-                                            .toString()
-                                            .split('.')
-                                            .last[0]
-                                            .toUpperCase() +
-                                        effect
-                                            .toString()
-                                            .split('.')
-                                            .last
-                                            .substring(1),
-                                    style: const TextStyle(fontSize: 14),
-                                  ),
-                                  value: effect,
-                                  groupValue: this.effect,
-                                  onChanged: setWindowEffect),
-                            )
-                            .toList(),
-                      ),
-                    )),
-                const SizedBox(height: 32),
-                ElevatedButton(
-                  onPressed: Window.enterFullscreen,
-                  child: Container(
-                    alignment: Alignment.center,
-                    height: 28,
-                    width: 140,
-                    child: const Text('Enter Fullscreen'),
+                  elevation: 4,
+                  color: Colors.white,
+                  child: SizedBox(
+                    height: 5 * 48,
+                    width: 240,
+                    child: Column(
+                      children: AcrylicEffect.values
+                          .map(
+                            (effect) => RadioListTile<AcrylicEffect>(
+                                title: Text(
+                                  effect
+                                          .toString()
+                                          .split('.')
+                                          .last[0]
+                                          .toUpperCase() +
+                                      effect
+                                          .toString()
+                                          .split('.')
+                                          .last
+                                          .substring(1),
+                                  style: const TextStyle(fontSize: 14),
+                                ),
+                                value: effect,
+                                groupValue: this.effect,
+                                onChanged: setWindowEffect),
+                          )
+                          .toList(),
+                    ),
                   ),
                 ),
-                const SizedBox(height: 16),
-                ElevatedButton(
-                  onPressed: Window.exitFullscreen,
-                  child: Container(
-                    alignment: Alignment.center,
-                    height: 28,
-                    width: 140,
-                    child: const Text('Exit Fullscreen'),
-                  ),
-                ),
-                const SizedBox(height: 32),
-                const Text('More features coming soon!',
-                    style: TextStyle(fontSize: 14, color: Colors.white)),
               ],
             ),
           ),

@@ -9,10 +9,6 @@ import 'dart:ffi';
 import 'package:ffi/ffi.dart';
 import 'package:win32/win32.dart';
 
-// Allegedly this is the documented alternative to
-// SetWindowCompositionAttribute:
-// https://docs.microsoft.com/en-us/windows/win32/api/dwmapi/nf-dwmapi-dwmsetwindowattribute
-
 class WINDOWCOMPOSITIONATTRIB {
   static const WCA_UNDEFINED = 0;
   static const WCA_NCRENDERING_ENABLED = 1;
@@ -85,15 +81,18 @@ class Rect {
   final int bottom;
 
   const Rect(this.left, this.top, this.right, this.bottom);
+
+  factory Rect.fromRECT(RECT rect) {
+    return Rect(rect.left, rect.right, rect.top, rect.bottom);
+  }
 }
 
 class AcrylicWin32 {
   late final setWindowsCompositionAttributeDart SetWindowCompositionAttribute;
 
-  late Rect initialRect;
-  bool _isFullscreen = false;
+  Rect? restoredWindowSize;
 
-  AcrylicWin32({bool shouldDrawCustomFrame = true}) {
+  void initUndocumentedWin32APIs() {
     final user32 = 'user32.dll'.toNativeUtf16();
     final hModule = GetModuleHandle(user32);
     if (hModule == NULL) throw Exception('Could not load kernel32.dll');
@@ -111,42 +110,45 @@ class AcrylicWin32 {
               pSetWindowCompositionAttribute)
           .asFunction<setWindowsCompositionAttributeDart>();
     }
+  }
+
+  AcrylicWin32({bool shouldDrawCustomFrame = true}) {
+    initUndocumentedWin32APIs();
 
     if (shouldDrawCustomFrame) {
-      final rect = calloc<RECT>();
-      final margins = calloc<MARGINS>()
+      final pRect = calloc<RECT>();
+      final pMargins = calloc<MARGINS>()
         ..ref.cxLeftWidth = 0
         ..ref.cxRightWidth = 0
         ..ref.cyTopHeight = 1
         ..ref.cyBottomHeight = 0;
 
-      final handle = findFlutterWindowHandle();
-      print('Handle: ${handle.toHexString(64)}');
-
       try {
+        final handle = findFlutterWindowHandle();
+
         // Install window handler
-        SetWindowSubclass(handle,
-            Pointer.fromFunction<SubclassProc>(subclassWindowProc, 0), 1, 0);
+        // SetWindowSubclass(handle,
+        //     Pointer.fromFunction<SubclassProc>(subclassWindowProc, 0), 1, 0);
 
         // Set window properties
-        GetWindowRect(handle, rect);
+        GetWindowRect(handle, pRect);
         SetWindowLongPtr(handle, GWL_STYLE, WS_POPUP | WS_VISIBLE | WS_CAPTION);
-        DwmExtendFrameIntoClientArea(handle, margins);
+        DwmExtendFrameIntoClientArea(handle, pMargins);
         SetWindowPos(
             handle,
             NULL,
-            rect.ref.left,
-            rect.ref.top,
-            rect.ref.right - rect.ref.left,
-            rect.ref.bottom - rect.ref.top,
+            pRect.ref.left,
+            pRect.ref.top,
+            pRect.ref.right - pRect.ref.left,
+            pRect.ref.bottom - pRect.ref.top,
             SWP_NOZORDER |
                 SWP_NOOWNERZORDER |
                 SWP_NOMOVE |
                 SWP_NOSIZE |
                 SWP_FRAMECHANGED);
       } finally {
-        free(rect);
-        free(margins);
+        free(pRect);
+        free(pMargins);
       }
     }
   }
@@ -236,59 +238,6 @@ class AcrylicWin32 {
     } finally {
       free(accent);
       free(data);
-    }
-  }
-
-  void enterFullscreen() {
-    if (!_isFullscreen) {
-      _isFullscreen = true;
-
-      final monitorInfo = calloc<MONITORINFO>()
-        ..ref.cbSize = sizeOf<MONITORINFO>();
-      final rect = calloc<RECT>();
-
-      try {
-        final hwnd = findFlutterWindowHandle();
-        final hMonitor = MonitorFromWindow(hwnd, MONITOR_DEFAULTTONEAREST);
-
-        GetMonitorInfo(hMonitor, monitorInfo);
-        SetWindowLongPtr(hwnd, GWL_STYLE, WS_POPUP | WS_VISIBLE);
-        GetWindowRect(hwnd, rect);
-
-        initialRect =
-            Rect(rect.ref.left, rect.ref.top, rect.ref.right, rect.ref.bottom);
-
-        SetWindowPos(
-            hwnd,
-            HWND_TOPMOST,
-            monitorInfo.ref.rcMonitor.left,
-            monitorInfo.ref.rcMonitor.top,
-            monitorInfo.ref.rcMonitor.right - monitorInfo.ref.rcMonitor.left,
-            monitorInfo.ref.rcMonitor.bottom - monitorInfo.ref.rcMonitor.top,
-            SWP_SHOWWINDOW);
-        ShowWindow(hwnd, SW_MAXIMIZE);
-      } finally {
-        free(monitorInfo);
-        free(rect);
-      }
-    }
-  }
-
-  void exitFullscreen() {
-    if (_isFullscreen) {
-      _isFullscreen = false;
-
-      final hwnd = findFlutterWindowHandle();
-      SetWindowLongPtr(hwnd, GWL_STYLE, WS_OVERLAPPEDWINDOW | WS_VISIBLE);
-      SetWindowPos(
-          hwnd,
-          HWND_NOTOPMOST,
-          initialRect.left,
-          initialRect.top,
-          initialRect.right - initialRect.left,
-          initialRect.bottom - initialRect.top,
-          SWP_SHOWWINDOW);
-      ShowWindow(hwnd, SW_RESTORE);
     }
   }
 }

@@ -90,19 +90,3 @@ class Acrylic {
         gradientColor.blue, gradientColor.alpha, state);
   }
 }
-
-/// **Window**
-///
-/// General utilities to control Flutter instance window.
-///
-class Window {
-  /// Makes the Flutter window fullscreen.
-  static void enterFullscreen() {
-    acrylic.enterFullscreen();
-  }
-
-  /// Restores the Flutter window back to normal from fullscreen mode.
-  static void exitFullscreen() {
-    acrylic.exitFullscreen();
-  }
-}
